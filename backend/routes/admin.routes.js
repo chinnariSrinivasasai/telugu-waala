@@ -7,7 +7,7 @@ import {
   addCoins
 } from "../controllers/admin.controller.js";
 
-import { protect, adminOnly } from "../middleware/auth.middleware.js";
+import { protect, adminOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
