@@ -1,9 +1,9 @@
 import express from "express";
-import { spin } from "../controllers/spin.controller.js";
-import { protect } from "../middleware/auth.middleware.js";
+import { spinNow } from "../controllers/spin.controller.js";
+import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", protect, spin);
+router.post("/", protect, spinNow);
 
 export default router;

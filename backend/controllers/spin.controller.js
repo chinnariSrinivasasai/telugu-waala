@@ -1,31 +1,16 @@
 import User from "../models/User.js";
 import Transaction from "../models/Transaction.js";
 
-const spinRewards = [0, 10, 20, 30, 50]; // 0 = Duck 🦆
-
-export const spin = async (req, res) => {
+export const spinNow = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.user._id);
 
-    const today = new Date();
-    today.setHours(0,0,0,0);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.lastSpinDate) {
-      const last = new Date(user.lastSpinDate);
-      last.setHours(0,0,0,0);
-      if (today.getTime() !== last.getTime()) {
-        user.dailySpinsLeft = 5;
-      }
-    }
+    // Rewards (including duck)
+    const rewards = [0, 10, 20, 30, 40, 50];
 
-    if (user.dailySpinsLeft <= 0) {
-      return res.status(400).json({ message: "No spins left for today" });
-    }
-
-    const reward = spinRewards[Math.floor(Math.random() * spinRewards.length)];
-
-    user.dailySpinsLeft -= 1;
-    user.lastSpinDate = today;
+    const reward = rewards[Math.floor(Math.random() * rewards.length)];
 
     if (reward > 0) {
       user.coins += reward;
@@ -33,21 +18,19 @@ export const spin = async (req, res) => {
 
     await user.save();
 
-    // Save transaction
     await Transaction.create({
       user: user._id,
       type: "spin",
       coins: reward,
-      description: reward === 0 ? "Duck spin" : `Spin won ${reward} coins`
+      description: reward === 0 ? "Duck spin" : "Spin win"
     });
 
     res.json({
       reward,
-      coins: user.coins,
-      spinsLeft: user.dailySpinsLeft
+      coins: user.coins
     });
-
   } catch (err) {
+    console.error("SPIN ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

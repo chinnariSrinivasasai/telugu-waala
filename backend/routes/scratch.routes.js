@@ -1,9 +1,9 @@
 import express from "express";
-import { scratch } from "../controllers/scratch.controller.js";
-import { protect } from "../middleware/auth.middleware.js";
+import { scratchNow } from "../controllers/scratch.controller.js";
+import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.post("/", protect, scratch);
+router.post("/", protect, scratchNow);
 
 export default router;

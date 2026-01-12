@@ -11,8 +11,8 @@ const transactionSchema = new mongoose.Schema({
     required: true
   },
 
-  coins: Number, // + or -
-  description: String
+  coins: { type: Number },
+  description: { type: String }
 
 }, { timestamps: true });
 

@@ -1,31 +1,16 @@
 import User from "../models/User.js";
 import Transaction from "../models/Transaction.js";
 
-const scratchRewards = [0, 10, 20, 30, 50];
-
-export const scratch = async (req, res) => {
+export const scratchNow = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.user._id);
 
-    const today = new Date();
-    today.setHours(0,0,0,0);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.lastScratchDate) {
-      const last = new Date(user.lastScratchDate);
-      last.setHours(0,0,0,0);
-      if (today.getTime() !== last.getTime()) {
-        user.dailyScratchLeft = 5;
-      }
-    }
+    // Rewards (including better luck)
+    const rewards = [0, 10, 20, 30, 40, 50];
 
-    if (user.dailyScratchLeft <= 0) {
-      return res.status(400).json({ message: "No scratch cards left for today" });
-    }
-
-    const reward = scratchRewards[Math.floor(Math.random() * scratchRewards.length)];
-
-    user.dailyScratchLeft -= 1;
-    user.lastScratchDate = today;
+    const reward = rewards[Math.floor(Math.random() * rewards.length)];
 
     if (reward > 0) {
       user.coins += reward;
@@ -33,21 +18,19 @@ export const scratch = async (req, res) => {
 
     await user.save();
 
-    // Save transaction
     await Transaction.create({
       user: user._id,
       type: "scratch",
       coins: reward,
-      description: reward === 0 ? "Better luck next time" : `Scratch won ${reward} coins`
+      description: reward === 0 ? "Better luck next time" : "Scratch win"
     });
 
     res.json({
       reward,
-      coins: user.coins,
-      scratchLeft: user.dailyScratchLeft
+      coins: user.coins
     });
-
   } catch (err) {
+    console.error("SCRATCH ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
