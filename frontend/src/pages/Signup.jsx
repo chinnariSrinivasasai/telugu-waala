@@ -1,34 +1,21 @@
 import { useState } from "react";
 import api from "../services/api";
-import { GoogleLogin } from "@react-oauth/google";
 
-export default function Login() {
+export default function Signup() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [popup, setPopup] = useState({ show: false, message: "" });
 
   const submit = async () => {
     try {
-      const res = await api.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      window.location.href = "/dashboard";
+      await api.post("/auth/signup", { username, email, password });
+      setPopup({ show: true, message: "✅ Account created! You can login now." });
     } catch (err) {
       setPopup({
         show: true,
-        message: err.response?.data?.message || "Login failed"
+        message: err.response?.data?.message || "Signup failed"
       });
-    }
-  };
-
-  const googleSuccess = async (cred) => {
-    try {
-      const res = await api.post("/auth/google", { credential: cred.credential });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      window.location.href = "/dashboard";
-    } catch {
-      setPopup({ show: true, message: "Google login failed" });
     }
   };
 
@@ -38,7 +25,16 @@ export default function Login() {
         <div style={styles.card}>
 
           <h1 style={styles.title}>⚡ Telugu Waala</h1>
-          <p style={styles.subtitle}>Login to your account</p>
+          <p style={styles.subtitle}>Create your account</p>
+
+          <div style={styles.field}>
+            <input
+              placeholder="Username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              style={styles.input}
+            />
+          </div>
 
           <div style={styles.field}>
             <input
@@ -60,19 +56,13 @@ export default function Login() {
           </div>
 
           <button onClick={submit} style={styles.mainBtn}>
-            Login
+            Create Account
           </button>
 
-          <div style={{ margin: "15px 0", textAlign: "center" }}>OR</div>
-
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <GoogleLogin onSuccess={googleSuccess} onError={() => {}} />
-          </div>
-
           <p style={styles.bottomText}>
-            Don't have an account?{" "}
-            <span style={styles.link} onClick={() => window.location.href = "/signup"}>
-              Signup
+            Already have an account?{" "}
+            <span style={styles.link} onClick={() => window.location.href = "/"}>
+              Login
             </span>
           </p>
 
