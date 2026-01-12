@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
 
   loginStreak: { type: Number, default: 0 },
   lastStreakClaimDate: { type: Date },
+  lastStreakDate: { type: Date },
 
   dailySpinsLeft: { type: Number, default: 5 },
   lastSpinDate: { type: Date },

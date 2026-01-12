@@ -9,6 +9,9 @@ import scratchRoutes from "./routes/scratch.routes.js";
 import withdrawRoutes from "./routes/withdraw.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import streakRoutes from "./routes/streak.routes.js";
+app.use("/api/streak", streakRoutes);
+
 
 dotenv.config();
 

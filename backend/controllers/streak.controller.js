@@ -3,54 +3,56 @@ import Transaction from "../models/Transaction.js";
 
 export const claimStreak = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.user._id);
 
-    const today = new Date();
-    today.setHours(0,0,0,0);
-
-    if (user.lastStreakClaimDate) {
-      const last = new Date(user.lastStreakClaimDate);
-      last.setHours(0,0,0,0);
-
-      const diffDays = Math.floor((today - last) / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 0) {
-        return res.status(400).json({ message: "Already claimed today" });
-      }
-
-      if (diffDays === 1) {
-        user.loginStreak += 1;
-        if (user.loginStreak > 7) user.loginStreak = 1;
-      } else {
-        user.loginStreak = 1;
-      }
-    } else {
-      user.loginStreak = 1;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const reward = 10 + user.loginStreak * 10;
+    const today = new Date().toDateString();
+    const last = user.lastStreakDate
+      ? new Date(user.lastStreakDate).toDateString()
+      : null;
+
+    if (last === today) {
+      return res.status(400).json({ message: "Already claimed today" });
+    }
+
+    // If missed day → reset
+    if (last) {
+      const diff =
+        (new Date(today) - new Date(last)) / (1000 * 60 * 60 * 24);
+      if (diff > 1) {
+        user.loginStreak = 0;
+      }
+    }
+
+    user.loginStreak += 1;
+    if (user.loginStreak > 7) user.loginStreak = 1;
+
+    const rewards = [20, 30, 40, 50, 60, 70, 80];
+    const reward = rewards[user.loginStreak - 1];
 
     user.coins += reward;
-    user.lastStreakClaimDate = today;
+    user.lastStreakDate = new Date();
 
     await user.save();
 
-    // Save transaction
     await Transaction.create({
       user: user._id,
       type: "streak",
       coins: reward,
-      description: `Streak day ${user.loginStreak} reward`
+      description: `Streak Day ${user.loginStreak} reward`
     });
 
     res.json({
-      message: "Streak claimed",
-      loginStreak: user.loginStreak,
+      reward,
       coins: user.coins,
-      reward
+      loginStreak: user.loginStreak
     });
 
   } catch (err) {
+    console.error("STREAK ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
