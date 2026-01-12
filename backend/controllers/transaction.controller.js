@@ -7,7 +7,7 @@ export const getMyTransactions = async (req, res) => {
 
     res.json(list);
   } catch (err) {
-    console.error("TRANSACTION HISTORY ERROR:", err);
+    console.error("TRANSACTION FETCH ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

@@ -7,8 +7,9 @@ import authRoutes from "./routes/auth.routes.js";
 import spinRoutes from "./routes/spin.routes.js";
 import scratchRoutes from "./routes/scratch.routes.js";
 import withdrawRoutes from "./routes/withdraw.routes.js";
-import transactionRoutes from "./routes/transaction.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import transactionRoutes from "./routes/transaction.routes.js";
+
 
 dotenv.config();
 
@@ -25,8 +26,8 @@ app.use("/api/streak", streakRoutes);
 app.use("/api/spin", spinRoutes);
 app.use("/api/scratch", scratchRoutes);
 app.use("/api/withdraw", withdrawRoutes);
-app.use("/api/transaction", transactionRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 
 mongoose.connect(process.env.MONGO_URI)
