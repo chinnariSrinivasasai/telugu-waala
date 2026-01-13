@@ -1,25 +1,68 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  username: String,
-  email: { type: String, unique: true },
-  password: String,
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true
+    },
 
-  coins: { type: Number, default: 0 },
+    email: {
+      type: String,
+      required: true,
+      unique: true
+    },
 
-  loginStreak: { type: Number, default: 0 },
-  lastStreakClaimDate: { type: Date },
-  lastStreakDate: { type: Date },
+    password: {
+      type: String
+    },
 
-  dailySpinsLeft: { type: Number, default: 5 },
-  lastSpinDate: { type: Date },
+    googleId: {
+      type: String
+    },
 
-  dailyScratchLeft: { type: Number, default: 5 },
-  lastScratchDate: { type: Date },
+    coins: {
+      type: Number,
+      default: 0
+    },
 
-  isAdmin: { type: Boolean, default: false },
-  isGoogleUser: { type: Boolean, default: false }
+    // ===== STREAK SYSTEM =====
+    loginStreak: {
+      type: Number,
+      default: 0
+    },
 
-}, { timestamps: true });
+    lastStreakDate: {
+      type: Date
+    },
+
+    // ===== DAILY SPIN SYSTEM =====
+    dailySpinCount: {
+      type: Number,
+      default: 0
+    },
+
+    lastSpinDate: {
+      type: Date
+    },
+
+    // ===== DAILY SCRATCH SYSTEM =====
+    dailyScratchCount: {
+      type: Number,
+      default: 0
+    },
+
+    lastScratchDate: {
+      type: Date
+    },
+
+    // ===== ADMIN =====
+    isAdmin: {
+      type: Boolean,
+      default: false
+    }
+  },
+  { timestamps: true }
+);
 
 export default mongoose.model("User", userSchema);
