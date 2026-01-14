@@ -7,12 +7,24 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
+  // Logo slider
+  const logos = ["/images/logo1.png", "/images/logo2.png"];
+  const [logoIndex, setLogoIndex] = useState(0);
+
   useEffect(() => {
     setUser(JSON.parse(localStorage.getItem("user")));
 
     const onResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+
+    const interval = setInterval(() => {
+      setLogoIndex((prev) => (prev + 1) % logos.length);
+    }, 3000);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      clearInterval(interval);
+    };
   }, []);
 
   if (!user) return null;
@@ -21,10 +33,25 @@ export default function Dashboard() {
     <div style={styles.page}>
       <Navbar />
 
-      <div style={styles.container}>
+      {/* LOGO SLIDER */}
+      <div style={styles.sliderWrap}>
+        <div style={styles.sliderBox}>
+          {logos.map((logo, i) => (
+            <img
+              key={i}
+              src={logo}
+              alt="Telugu Waala"
+              style={{
+                ...styles.logoImg,
+                opacity: i === logoIndex ? 1 : 0
+              }}
+            />
+          ))}
+        </div>
+      </div>
 
-        <h1 style={styles.title}>⚡ Telugu <span>Waala</span></h1>
-        <h2 style={{ ...styles.subtitle, color: "yellow" }}>Hello, {user.username} 👋</h2>
+      <div style={styles.container}>
+        <h2 style={styles.subtitle}>Hello, {user.username} 👋</h2>
         <div style={styles.coins}>💰 Coins: {user.coins}</div>
 
         <div
@@ -36,14 +63,13 @@ export default function Dashboard() {
           <Card icon="👤" title="Profile" onClick={() => navigate("/profile")} />
           <Card icon="🎯" title="Actions" onClick={() => navigate("/actions")} />
           <Card icon="🔥" title="Streak" onClick={() => navigate("/streak")} />
-            <Card icon="💸" title="Withdraw" onClick={() => navigate("/withdraw")} />
+          <Card icon="💸" title="Withdraw" onClick={() => navigate("/withdraw")} />
           <Card icon="📜" title="History" onClick={() => navigate("/history")} />
-           </div>
+        </div>
 
         <div style={styles.footer}>
           © 2026 copyrights reserved, chinnari srinivasasai
         </div>
-
       </div>
     </div>
   );
@@ -51,34 +77,58 @@ export default function Dashboard() {
 
 function Card({ icon, title, onClick }) {
   return (
-   <div
-  style={styles.card}
-  onMouseEnter={e => {e.currentTarget.style.transform="translateY(-6px) scale(1.03)"}}
-  onMouseLeave={e => e.currentTarget.style.transform="scale(1)"}
-  onClick={onClick}
->
-      <div style={{ fontSize: 40 }}>{icon}</div>
+    <div
+      style={styles.card}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.transform = "translateY(-6px) scale(1.03)")
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.transform = "scale(1)")
+      }
+      onClick={onClick}
+    >
+      <div style={{ fontSize: 42 }}>{icon}</div>
       <b>{title}</b>
     </div>
-  );
-}
-
-function MainButton({ text, color, onClick }) {
-  return (
-    <button style={{ ...styles.btn, background: color }} onClick={onClick}>
-      {text}
-    </button>
   );
 }
 
 /* STYLES */
 const styles = {
   page: { minHeight: "100vh", background: "var(--bg)", color: "var(--text)" },
+
+  sliderWrap: {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 20
+  },
+
+  sliderBox: {
+    position: "relative",
+    width: "90%",
+    maxWidth: 700,
+    height: 140,
+    overflow: "hidden"
+  },
+
+  logoImg: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    transition: "opacity 0.8s ease-in-out"
+  },
+
   container: { maxWidth: 1100, margin: "0 auto", padding: 20 },
-  title: { fontSize: 36, fontWeight: "800", color: "#facc15" },
-  subtitle: { fontSize: 26, marginTop: 10 },
+
+  subtitle: { fontSize: 26, marginTop: 20, color: "#facc15" },
+
   coins: { marginTop: 10, fontSize: 18, color: "#22c55e", fontWeight: "bold" },
+
   grid: { display: "grid", gap: 24, marginTop: 30 },
+
   card: {
     background: "linear-gradient(135deg, #6366f1, #22c55e)",
     borderRadius: 20,
@@ -88,19 +138,15 @@ const styles = {
     fontSize: 20,
     cursor: "pointer",
     transition: "0.25s",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.25)"
   },
 
-  cardHover: { transform: "scale(2.05)"},
-  bottom: { display: "flex", gap: 16, marginTop: 30 },
-  btn: {
-    padding: 16,
-    borderRadius: 14,
-    border: "none",
-    fontSize: 18,
-    fontWeight: "bold",
-    cursor: "pointer",
-    color: "white"
-  },
-  footer: { textAlign: "center", marginTop: 40, opacity: 0.9, fontSize: 12, color: "yellow", fontWeight: "bold" }
+  footer: {
+    textAlign: "center",
+    marginTop: 50,
+    opacity: 0.9,
+    fontSize: 12,
+    color: "#facc15",
+    fontWeight: "bold"
+  }
 };

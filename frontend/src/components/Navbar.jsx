@@ -4,32 +4,33 @@ import { useNavigate } from "react-router-dom";
 export default function Navbar() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Detect screen size
+  // Screen size
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Load theme
+  // Default DARK theme
   useEffect(() => {
     const t = localStorage.getItem("theme");
-    if (t === "dark") {
+    if (t === "light") {
+      document.documentElement.classList.remove("dark");
+      setDark(false);
+    } else {
       document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
       setDark(true);
     }
   }, []);
 
   const toggleTheme = () => {
     const isDark = document.documentElement.classList.contains("dark");
-
     if (isDark) {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
@@ -50,8 +51,14 @@ export default function Navbar() {
     <button
       onClick={onClick}
       style={styles.navBtn}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "#facc15",e.currentTarget.style.color = "black")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent", e.currentTarget.style.color = "white")}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "#facc15";
+        e.currentTarget.style.color = "black";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+        e.currentTarget.style.color = "white";
+      }}
     >
       {children}
     </button>
@@ -59,15 +66,10 @@ export default function Navbar() {
 
   return (
     <>
-      {/* TOP BAR */}
       <div style={styles.topbar}>
         <div style={styles.inner}>
-
           {/* LOGO */}
-          <div
-            onClick={() => navigate("/dashboard")}
-            style={styles.logo}
-          >
+          <div onClick={() => navigate("/dashboard")} style={styles.logo}>
             <div style={styles.icon}>⚡</div>
             <span>Telugu Waala</span>
           </div>
@@ -89,13 +91,12 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* MOBILE MENU BUTTON */}
+          {/* MOBILE */}
           {isMobile && (
             <button onClick={() => setOpen(true)} style={styles.hamburger}>
               ☰
             </button>
           )}
-
         </div>
       </div>
 
@@ -171,11 +172,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center"
   },
-  menu: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px"
-  },
+  menu: { display: "flex", alignItems: "center", gap: "10px" },
   navBtn: {
     padding: "8px 14px",
     borderRadius: "999px",
@@ -184,7 +181,7 @@ const styles = {
     color: "white",
     cursor: "pointer",
     fontSize: "14px",
-    transition: "0.2s",
+    transition: "0.2s"
   },
   hamburger: {
     fontSize: "24px",
