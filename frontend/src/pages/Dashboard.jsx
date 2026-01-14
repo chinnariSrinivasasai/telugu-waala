@@ -229,7 +229,9 @@ const styles = {
     color: "#facc15",
     fontWeight: "bold"
   }
-};  card: {
+},
+  
+card: {
     background: "linear-gradient(135deg, #6366f1, #22c55e)",
     borderRadius: 20,
     padding: "50px 20px",
