@@ -33,22 +33,30 @@ export default function Dashboard() {
     <div style={styles.page}>
       <Navbar />
 
-      {/* LOGO SLIDER */}
-      <div style={styles.sliderWrap}>
-        <div style={styles.sliderBox}>
-          {logos.map((logo, i) => (
-            <img
-              key={i}
-              src={logo}
-              alt="Telugu Waala"
-              style={{
-                ...styles.logoImg,
-                opacity: i === logoIndex ? 1 : 0
-              }}
-            />
-          ))}
-        </div>
-      </div>
+     {/* LOGO SLIDER */}
+<div style={styles.sliderWrap}>
+  <div style={styles.sliderBox}>
+    {logos.map((logo, i) => {
+      let position = "100%"; // right (hidden)
+
+      if (i === logoIndex) position = "0%"; // center (visible)
+      if (i === (logoIndex - 1 + logos.length) % logos.length) position = "-100%"; // left (exit)
+
+      return (
+        <img
+          key={i}
+          src={logo}
+          alt="Telugu Waala"
+          style={{
+            ...styles.logoImg,
+            transform: `translateX(${position})`,
+          }}
+        />
+      );
+    })}
+  </div>
+</div>
+
 
       <div style={styles.container}>
         <h2 style={styles.subtitle}>Hello, {user.username} 👋</h2>
@@ -97,29 +105,31 @@ function Card({ icon, title, onClick }) {
 const styles = {
   page: { minHeight: "100vh", background: "var(--bg)", color: "var(--text)" },
 
-  sliderWrap: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: 20
-  },
+sliderWrap: {
+  display: "flex",
+  justifyContent: "center",
+  marginTop: 20,
+  overflow: "hidden"
+},
 
-  sliderBox: {
-    position: "relative",
-    width: "90%",
-    maxWidth: 700,
-    height: 140,
-    overflow: "hidden"
-  },
+sliderBox: {
+  position: "relative",
+  width: "90%",
+  maxWidth: 700,
+  height: 140,
+  overflow: "hidden"
+},
 
-  logoImg: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    maxWidth: "100%",
-    maxHeight: "100%",
-    transition: "opacity 0.8s ease-in-out"
-  },
+logoImg: {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translateX(100%) translateY(-50%)",
+  maxWidth: "100%",
+  maxHeight: "100%",
+  transition: "transform 0.8s ease-in-out"
+},
+
 
   container: { maxWidth: 1100, margin: "0 auto", padding: 20 },
 
