@@ -209,29 +209,8 @@ const styles = {
 
   grid: { display: "grid", gap: 24, marginTop: 30 },
 
+  // 👇 THIS COMMA WAS MISSING ABOVE THIS LINE
   card: {
-    background: "linear-gradient(135deg, #6366f1, #22c55e)",
-    borderRadius: 20,
-    padding: "50px 20px",
-    textAlign: "center",
-    color: "white",
-    fontSize: 20,
-    cursor: "pointer",
-    transition: "0.25s",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.25)"
-  },
-
-  footer: {
-    textAlign: "center",
-    marginTop: 50,
-    opacity: 0.9,
-    fontSize: 12,
-    color: "#facc15",
-    fontWeight: "bold"
-  }
-},
-  
-card: {
     background: "linear-gradient(135deg, #6366f1, #22c55e)",
     borderRadius: 20,
     padding: "50px 20px",
