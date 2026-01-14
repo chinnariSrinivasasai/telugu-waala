@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 
@@ -7,13 +7,11 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
-  // Logos
-  const logos = [
-    "/images/logo1.png",
-    "/images/logo2.png"
-  ];
-
+  // Slider state
+  const logos = ["/images/logo1.png", "/images/logo2.png"];
   const [logoIndex, setLogoIndex] = useState(0);
+  const intervalRef = useRef(null);
+  const startXRef = useRef(0);
 
   useEffect(() => {
     setUser(JSON.parse(localStorage.getItem("user")));
@@ -21,15 +19,48 @@ export default function Dashboard() {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", onResize);
 
-    const interval = setInterval(() => {
-      setLogoIndex((prev) => (prev + 1) % logos.length);
-    }, 3000);
+    startAutoSlide();
 
     return () => {
       window.removeEventListener("resize", onResize);
-      clearInterval(interval);
+      stopAutoSlide();
     };
   }, []);
+
+  const startAutoSlide = () => {
+    stopAutoSlide();
+    intervalRef.current = setInterval(() => {
+      setLogoIndex((prev) => (prev + 1) % logos.length);
+    }, 3500);
+  };
+
+  const stopAutoSlide = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  };
+
+  const goTo = (i) => {
+    setLogoIndex(i);
+    startAutoSlide();
+  };
+
+  // Swipe support
+  const onTouchStart = (e) => {
+    startXRef.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = startXRef.current - endX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        setLogoIndex((p) => (p + 1) % logos.length);
+      } else {
+        setLogoIndex((p) => (p - 1 + logos.length) % logos.length);
+      }
+      startAutoSlide();
+    }
+  };
 
   if (!user) return null;
 
@@ -38,19 +69,42 @@ export default function Dashboard() {
       <Navbar />
 
       {/* LOGO SLIDER */}
-      <div style={styles.sliderOuter}>
-        <div
-          style={{
-            ...styles.sliderInner,
-            transform: `translateX(-${logoIndex * 100}%)`
-          }}
-        >
-          {logos.map((logo, i) => (
-            <div key={i} style={styles.slide}>
-              <img src={logo} alt="Telugu Waala" style={styles.logoImg} />
-            </div>
-          ))}
+      <div
+        style={styles.sliderOuter}
+        onMouseEnter={stopAutoSlide}
+        onMouseLeave={startAutoSlide}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <div style={styles.sliderFrame}>
+          <div
+            style={{
+              ...styles.sliderInner,
+              transform: `translateX(-${logoIndex * 100}%)`
+            }}
+          >
+            {logos.map((logo, i) => (
+              <div key={i} style={styles.slide}>
+                <img src={logo} alt="Telugu Waala" style={styles.logoImg} />
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+
+      {/* DOTS */}
+      <div style={styles.dots}>
+        {logos.map((_, i) => (
+          <div
+            key={i}
+            onClick={() => goTo(i)}
+            style={{
+              ...styles.dot,
+              opacity: logoIndex === i ? 1 : 0.4,
+              transform: logoIndex === i ? "scale(1.3)" : "scale(1)"
+            }}
+          />
+        ))}
       </div>
 
       <div style={styles.container}>
@@ -78,17 +132,14 @@ export default function Dashboard() {
   );
 }
 
-/* CARD */
 function Card({ icon, title, onClick }) {
   return (
     <div
       style={styles.card}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-6px) scale(1.03)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "scale(1)";
-      }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.transform = "translateY(-6px) scale(1.03)")
+      }
+      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
       onClick={onClick}
     >
       <div style={{ fontSize: 42 }}>{icon}</div>
@@ -101,20 +152,22 @@ function Card({ icon, title, onClick }) {
 const styles = {
   page: { minHeight: "100vh", background: "var(--bg)", color: "var(--text)" },
 
-  /* SLIDER */
   sliderOuter: {
     width: "100%",
     display: "flex",
     justifyContent: "center",
     marginTop: 20,
-    marginBottom: 30,
+    overflow: "hidden"
+  },
+
+  sliderFrame: {
+    width: "700px",
+    maxWidth: "95%",
     overflow: "hidden"
   },
 
   sliderInner: {
     display: "flex",
-    width: "100%",
-    maxWidth: 700,
     transition: "transform 0.8s ease-in-out"
   },
 
@@ -128,19 +181,55 @@ const styles = {
   logoImg: {
     maxWidth: "100%",
     maxHeight: 140,
-    objectFit: "contain"
+    objectFit: "contain",
+    filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))"
   },
 
-  /* CONTENT */
+  dots: {
+    display: "flex",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 10
+  },
+
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    background: "#facc15",
+    cursor: "pointer",
+    transition: "0.3s"
+  },
+
   container: { maxWidth: 1100, margin: "0 auto", padding: 20 },
 
-  subtitle: { fontSize: 26, marginTop: 10, color: "#facc15" },
+  subtitle: { fontSize: 26, marginTop: 20, color: "#facc15" },
 
   coins: { marginTop: 10, fontSize: 18, color: "#22c55e", fontWeight: "bold" },
 
   grid: { display: "grid", gap: 24, marginTop: 30 },
 
   card: {
+    background: "linear-gradient(135deg, #6366f1, #22c55e)",
+    borderRadius: 20,
+    padding: "50px 20px",
+    textAlign: "center",
+    color: "white",
+    fontSize: 20,
+    cursor: "pointer",
+    transition: "0.25s",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.25)"
+  },
+
+  footer: {
+    textAlign: "center",
+    marginTop: 50,
+    opacity: 0.9,
+    fontSize: 12,
+    color: "#facc15",
+    fontWeight: "bold"
+  }
+};  card: {
     background: "linear-gradient(135deg, #6366f1, #22c55e)",
     borderRadius: 20,
     padding: "50px 20px",
