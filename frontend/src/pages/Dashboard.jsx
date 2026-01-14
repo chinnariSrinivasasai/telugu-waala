@@ -7,8 +7,12 @@ export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
 
-  // Logo slider
-  const logos = ["/images/logo1.png", "/images/logo2.png"];
+  // Logos
+  const logos = [
+    "/images/logo1.png",
+    "/images/logo2.png"
+  ];
+
   const [logoIndex, setLogoIndex] = useState(0);
 
   useEffect(() => {
@@ -33,30 +37,21 @@ export default function Dashboard() {
     <div style={styles.page}>
       <Navbar />
 
-     {/* LOGO SLIDER */}
-<div style={styles.sliderWrap}>
-  <div style={styles.sliderBox}>
-    {logos.map((logo, i) => {
-      let position = "100%"; // right (hidden)
-
-      if (i === logoIndex) position = "0%"; // center (visible)
-      if (i === (logoIndex - 1 + logos.length) % logos.length) position = "-100%"; // left (exit)
-
-      return (
-        <img
-          key={i}
-          src={logo}
-          alt="Telugu Waala"
+      {/* LOGO SLIDER */}
+      <div style={styles.sliderOuter}>
+        <div
           style={{
-            ...styles.logoImg,
-            transform: `translateX(${position})`,
+            ...styles.sliderInner,
+            transform: `translateX(-${logoIndex * 100}%)`
           }}
-        />
-      );
-    })}
-  </div>
-</div>
-
+        >
+          {logos.map((logo, i) => (
+            <div key={i} style={styles.slide}>
+              <img src={logo} alt="Telugu Waala" style={styles.logoImg} />
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div style={styles.container}>
         <h2 style={styles.subtitle}>Hello, {user.username} 👋</h2>
@@ -83,16 +78,17 @@ export default function Dashboard() {
   );
 }
 
+/* CARD */
 function Card({ icon, title, onClick }) {
   return (
     <div
       style={styles.card}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.transform = "translateY(-6px) scale(1.03)")
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.transform = "scale(1)")
-      }
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-6px) scale(1.03)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+      }}
       onClick={onClick}
     >
       <div style={{ fontSize: 42 }}>{icon}</div>
@@ -105,35 +101,40 @@ function Card({ icon, title, onClick }) {
 const styles = {
   page: { minHeight: "100vh", background: "var(--bg)", color: "var(--text)" },
 
-sliderWrap: {
-  display: "flex",
-  justifyContent: "center",
-  marginTop: 20,
-  overflow: "hidden"
-},
+  /* SLIDER */
+  sliderOuter: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    marginTop: 20,
+    marginBottom: 30,
+    overflow: "hidden"
+  },
 
-sliderBox: {
-  position: "relative",
-  width: "90%",
-  maxWidth: 700,
-  height: 140,
-  overflow: "hidden"
-},
+  sliderInner: {
+    display: "flex",
+    width: "100%",
+    maxWidth: 700,
+    transition: "transform 0.8s ease-in-out"
+  },
 
-logoImg: {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translateX(100%) translateY(-50%)",
-  maxWidth: "100%",
-  maxHeight: "100%",
-  transition: "transform 0.8s ease-in-out"
-},
+  slide: {
+    minWidth: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  },
 
+  logoImg: {
+    maxWidth: "100%",
+    maxHeight: 140,
+    objectFit: "contain"
+  },
 
+  /* CONTENT */
   container: { maxWidth: 1100, margin: "0 auto", padding: 20 },
 
-  subtitle: { fontSize: 26, marginTop: 20, color: "#facc15" },
+  subtitle: { fontSize: 26, marginTop: 10, color: "#facc15" },
 
   coins: { marginTop: 10, fontSize: 18, color: "#22c55e", fontWeight: "bold" },
 
